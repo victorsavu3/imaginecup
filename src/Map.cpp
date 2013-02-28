@@ -15,7 +15,8 @@ Map::Map(std::string file) {
 		FAIL("Failed to parse %s", file.c_str());
 	}
 
-	//FAIL_ON(!desaturate.loadFromFile("assets/desaturate.sfx", sf::Shader::Vertex), "Failed to load shared");
+	desaturate.reset(new sf::Shader);
+	FAIL_ON(!desaturate->loadFromFile("assets/desaturate.glfs", sf::Shader::Fragment), "Failed to load shared");
 
 	tilesets.resize(map.GetNumTilesets());
 
@@ -56,8 +57,10 @@ Map::Map(std::string file) {
 		layers[layer->GetZOrder()] = new ImageLayer(this, layer->GetImage()->GetSource());
 	}
 
-	for(i=1;i<=n;i++)
-		layers[n - i]->scale = (float)(i + 1) / (n + 2);
+	for(i=0;i<n;i++){
+		layers[i]->scale = (float)(i + 1) / n;
+		layers[i]->color = (float)(i + 1) / n;
+	}
 }
 
 Map::~Map() {
@@ -73,7 +76,11 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	for(i=0;i<layers.size();i++){
 		sf::RenderStates state = states;
 
-		state.transform.translate( - position / layers[i]->scale);
+		desaturate->setParameter("saturation", layers[i]->scale);
+		desaturate->setParameter("alpha", layers[i]->alpha);
+
+		state.transform.translate( - position * layers[i]->scale);
+		state.shader = &*desaturate;
 
 		target.draw(*layers[i], state);
 	}

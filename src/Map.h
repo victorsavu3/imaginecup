@@ -39,7 +39,7 @@ private:
 	std::vector<shared_ptr<sf::Texture> > tilesets;
 	std::vector<Layer*> layers;
 	std::map<std::string, shared_ptr<sf::Texture> > textures;
-	sf::Shader desaturate;
+	shared_ptr<sf::Shader> desaturate;
 
 	friend class TileLayer;
 };
