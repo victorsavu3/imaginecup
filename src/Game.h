@@ -7,8 +7,6 @@
 
 using boost::shared_ptr;
 
-#include "Tilemap.h"
-
 class Game {
 public:
 	Game();
@@ -17,7 +15,6 @@ public:
 	void start();
 
 private:
-	shared_ptr<Tilemap> map;
 	sf::RenderWindow window;
 	sf::Texture background;
 };

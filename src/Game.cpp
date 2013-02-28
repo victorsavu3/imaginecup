@@ -1,12 +1,11 @@
 #include "Game.h"
 
-#include "Layer.h"
+#include "Map.h"
 
-Game::Game() : 	map(new Tilemap("assets/test.tmx")){
+Game::Game(){
 
-	window.create(sf::VideoMode(1920, 1080), "Imaginecup", sf::Style::Fullscreen);
-
-	background.loadFromFile("assets/bg.png");
+	//window.create(sf::VideoMode(1920, 1080), "Imaginecup", sf::Style::Fullscreen);
+	window.create(sf::VideoMode(800, 600), "Imaginecup");
 }
 
 Game::~Game() {
@@ -15,37 +14,11 @@ Game::~Game() {
 void Game::start() {
 	uint32_t x = 0;
 
-	Layer bg(0, map);
+	Map map("assets/test.tmx");
 
-	shared_ptr<sf::Sprite> bgs1(new sf::Sprite);
+	window.setVerticalSyncEnabled(true);
 
-	bgs1->setPosition(0, 0);
-	bgs1->setTexture(background);
-
-	bg.addSprite(bgs1);
-
-	shared_ptr<sf::Sprite> bgs2(new sf::Sprite);
-
-	bgs2->setPosition(600, 0);
-	bgs2->setTexture(background);
-
-	bg.addSprite(bgs2);
-
-	shared_ptr<sf::Sprite> bgs3(new sf::Sprite);
-
-	bgs3->setPosition(0, 600.);
-	bgs3->setTexture(background);
-
-	bg.addSprite(bgs3);
-
-	shared_ptr<sf::Sprite> bgs4(new sf::Sprite);
-
-	bgs4->setPosition(600, 600.);
-	bgs4->setTexture(background);
-
-	bg.addSprite(bgs4);
-
-	sf::Clock clock;
+	sf::Vector2f position;
 
 	while (window.isOpen())
 	{
@@ -61,12 +34,10 @@ void Game::start() {
 
 		window.clear();
 
-		x = clock.getElapsedTime().asMilliseconds() / (float)10;
+		position.x++;
+		map.setPosition(position);
 
-		bg.draw(window, x, 0);
-		Layer(1, map).draw(window, x, 0);
-		Layer(2, map).draw(window, x, 0);
-		Layer(3, map).draw(window, x, 0);
+		window.draw(map);
 
 		window.display();
 	}

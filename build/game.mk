@@ -1,4 +1,4 @@
-SRCS := main.cpp Game.cpp Tilemap.cpp Layer.cpp
+SRCS := main.cpp Game.cpp Layer.cpp Map.cpp
 OBJS := $(addprefix $(OBJ), $(addsuffix .o, $(basename $(SRCS))))
 
 all: $(BIN)game
