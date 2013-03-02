@@ -6,7 +6,7 @@ OBJ := $(BIN)obj/
 SRC := $(PWD)src/
 BUILD := $(PWD)build/
 
-LDFLAGS = -L $(BIN)lib -ltinyxml -lz -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+LDFLAGS = -L $(BIN)lib -ltinyxml -lz -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lBox2D
 CPPFLAGS = -O0 -g3 -ggdb -DDEBUG -I tmx-parser -I SFML/include
 
 .PHONY: all

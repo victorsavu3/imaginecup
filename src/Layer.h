@@ -35,7 +35,7 @@ public:
 class TileLayer : public Layer{
 public:
 	TileLayer(Map* map, const Tmx::Layer *layer);
-	virtual ~TileLayer() {};
+	virtual ~TileLayer() {}
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
 
@@ -48,12 +48,20 @@ private:
 class ImageLayer : public Layer{
 public:
 	ImageLayer(Map* map, std::string file);
-	virtual ~ImageLayer() {};
+	virtual ~ImageLayer() {}
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
 private:
 	shared_ptr<sf::Texture> texture;
 	sf::VertexArray array;
+};
+
+class ObjectLayer : public Layer{
+public:
+	ObjectLayer() {}
+	virtual ~ObjectLayer() {}
+
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const {}
 };
 
 #endif /* LAYER_H_ */

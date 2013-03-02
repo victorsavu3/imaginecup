@@ -20,6 +20,8 @@ void Game::start() {
 
 	sf::Vector2f position;
 
+	sf::Clock clock;
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -28,13 +30,26 @@ void Game::start() {
 			if (event.type == sf::Event::Closed)
 				window.close();
 
-			if(event.type == sf::Event::KeyPressed)
-				window.close();
+			if(event.type == sf::Event::KeyPressed){
+				if(event.key.code == sf::Keyboard::P)
+					map.debugPhysics();
+				else if(event.key.code == sf::Keyboard::W)
+					map.player->jump();
+				else if(event.key.code == sf::Keyboard::D)
+					map.player->impulse(b2Vec2(100, 0));
+				else if(event.key.code == sf::Keyboard::A)
+					map.player->impulse(b2Vec2(-100, 0));
+				else
+					window.close();
+			}
 		}
 
 		window.clear();
 
-		position.x++;
+		map.step(clock.getElapsedTime().asMilliseconds() / (float) 1000);
+
+		clock.restart();
+
 		map.setPosition(position);
 
 		window.draw(map);
