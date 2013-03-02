@@ -7,3 +7,6 @@
 [submodule "tmx-parser"]
 	path = tmx-parser
 	url = git@github.com:victorsavu3/tmx-parser.git
+[submodule "spine"]
+	path = spine
+	url = https://github.com/EsotericSoftware/spine-runtimes.git
