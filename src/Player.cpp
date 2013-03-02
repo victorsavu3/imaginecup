@@ -1,5 +1,7 @@
 #include "Player.h"
 
+#include "error.h"
+
 Player::~Player() {
 }
 
@@ -63,30 +65,30 @@ void Player::jump() {
 
 void Player::startImpulseLeft() {
 	if(impulse == ImpulseRight)
-		impulse = ImpulseBoth;
+		setImpulse(ImpulseBoth);
 	else
-		impulse = ImpulseLeft;
+		setImpulse(ImpulseLeft);
 }
 
 void Player::startImpulseRight() {
 	if(impulse == ImpulseLeft)
-		impulse = ImpulseBoth;
+		setImpulse(ImpulseBoth);
 	else
-		impulse = ImpulseRight;
+		setImpulse(ImpulseRight);
 }
 
 void Player::stopImpulseLeft() {
 	if(impulse == ImpulseBoth)
-		impulse = ImpulseRight;
+		setImpulse(ImpulseRight);
 	else
-		impulse = ImpulseNone;
+		setImpulse(ImpulseNone);
 }
 
 void Player::stopImpulseRight() {
 	if(impulse == ImpulseBoth)
-		impulse = ImpulseLeft;
+		setImpulse(ImpulseLeft);
 	else
-		impulse = ImpulseNone;
+		setImpulse(ImpulseNone);
 }
 
 void Player::doJump() {
@@ -200,24 +202,45 @@ void Player::setState(State state) {
 	if(this->state == state)
 		return;
 
-	std::cout<<"Player state becomes: ";
-
 	switch(state){
 	case PlayerPreJump:
-		std::cout<<"PlayerPreJump"<<std::endl;
+		DBG("Player state becomes: PlayerPreJump");
 		break;
 	case PlayerJumping:
-		std::cout<<"PlayerJumping"<<std::endl;
+		DBG("Player state becomes: PlayerJumping");
 		break;
 	case PlayerFalling:
-		std::cout<<"PlayerFalling"<<std::endl;
+		DBG("Player state becomes: PlayerFalling");
 		break;
 	case PlayerStanding:
-		std::cout<<"PlayerStanding"<<std::endl;
+		DBG("Player state becomes: PlayerStanding");
 		break;
 	case PlayerRunning:
-		std::cout<<"PlayerRunning"<<std::endl;
+		DBG("Player state becomes: PlayerRunning");
 		break;
 	}
+
 	this->state = state;
+}
+
+void Player::setImpulse(Impulse impulse) {
+	if(this->impulse == impulse)
+		return;
+
+	switch(impulse){
+	case ImpulseNone:
+		DBG("Player state becomes: ImpulseNone");
+		break;
+	case ImpulseLeft:
+		DBG("Player state becomes: ImpulseLeft");
+		break;
+	case ImpulseRight:
+		DBG("Player state becomes: ImpulseRight");
+		break;
+	case ImpulseBoth:
+		DBG("Player state becomes: ImpulseBoth");
+		break;
+	}
+
+	this->impulse = impulse;
 }

@@ -70,6 +70,7 @@ private:
 	void applyImpulse(float frame);
 
 	void setState(State state);
+	void setImpulse(Impulse impulse);
 
 	uint32_t grounded;
 };
