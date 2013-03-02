@@ -21,7 +21,8 @@ void Game::start() {
 
 	sf::Vector2f position;
 
-	sf::Clock clock;
+	sf::Clock frame;
+	sf::Clock time;
 
 	while (window.isOpen())
 	{
@@ -37,25 +38,26 @@ void Game::start() {
 				else if(event.key.code == sf::Keyboard::W)
 					map.player->jump();
 				else if(event.key.code == sf::Keyboard::D)
-					map.player->impulseRight();
+					map.player->startImpulseRight();
 				else if(event.key.code == sf::Keyboard::A)
-					map.player->impulseLeft();
+					map.player->startImpulseLeft();
 				else
 					window.close();
 			}
+
+			if(event.type == sf::Event::KeyReleased){
+				if(event.key.code == sf::Keyboard::D)
+					map.player->stopImpulseRight();
+				else if(event.key.code == sf::Keyboard::A)
+					map.player->stopImpulseLeft();
+			}
 		}
-
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-			map.player->impulseRight();
-
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-				map.player->impulseLeft();
 
 		window.clear();
 
-		map.step(clock.getElapsedTime().asMilliseconds() / (float) 1000);
+		map.step(frame.getElapsedTime().asMilliseconds() / (float) 1000, time.getElapsedTime().asMilliseconds() / (float) 1000);
 
-		clock.restart();
+		frame.restart();
 
 		map.setPosition(position);
 

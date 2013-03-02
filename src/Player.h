@@ -16,7 +16,7 @@ using boost::shared_ptr;
 #include "Map.h"
 #include "conversions.h"
 
-class Player : public sf::Sprite{
+class Player : public sf::Sprite, public b2ContactListener {
 public:
 	Player(Map* map, b2Vec2 position, uint16_t layer);
 	virtual ~Player();
@@ -25,23 +25,53 @@ public:
 		return layer;
 	}
 
-	uint16_t setLayer(){
-		return layer;
-	}
+	void startImpulseLeft();
+	void startImpulseRight();
+	void stopImpulseLeft();
+	void stopImpulseRight();
 
-	void impulseLeft();
-	void impulseRight();
 	void jump();
 
 	bool isGrounded();
 
-	void sync();
+	void step(float frame, float time);
 
+	void BeginContact(b2Contact* contact);
+	void EndContact(b2Contact* contact);
 private:
 	b2Body* body;
+	b2Fixture* wheel;
 	uint16_t layer;
 	shared_ptr<sf::Texture> texture;
 	Map* map;
+
+	enum State{
+		PlayerStanding,
+		PlayerRunning,
+		PlayerJumping,
+		PlayerPreJump,
+		PlayerFalling
+	} state;
+
+	enum Impulse{
+		ImpulseNone,
+		ImpulseLeft,
+		ImpulseRight,
+		ImpulseBoth
+	} impulse;
+
+	void doJump();
+	b2Vec2 clamp(b2Vec2 what);
+
+	float jumpStart;
+	float time;
+
+	void sync();
+	void applyImpulse(float frame);
+
+	void setState(State state);
+
+	uint32_t grounded;
 };
 
 #endif /* PLAYER_H_ */

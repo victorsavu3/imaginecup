@@ -108,6 +108,8 @@ Map::Map(std::string file) : world(b2Vec2(0, 50)){
 		layers[i]->color = (float)(i + 1) / n;
 	}
 
+	world.SetContactListener(&listener);
+
 	debug = NULL;
 }
 
@@ -156,9 +158,9 @@ shared_ptr<sf::Texture> Map::getTexture(std::string file) {
 	}
 }
 
-void Map::step(float time) {
-	world.Step(time, 8, 3);
-	player->sync();
+void Map::step(float frame, float time) {
+	world.Step(frame, 8, 3);
+	player->step(frame, time);
 
 	if(debug){
 		debug->clear();
@@ -166,4 +168,18 @@ void Map::step(float time) {
 		world.DrawDebugData();
 		debug->display();
 	}
+}
+
+void ContactListener::BeginContact(b2Contact* contact) {
+	if(contact->GetFixtureA()->GetUserData() != NULL)
+		((b2ContactListener*)contact->GetFixtureA()->GetUserData())->BeginContact(contact);
+	if(contact->GetFixtureB()->GetUserData() != NULL)
+		((b2ContactListener*)contact->GetFixtureB()->GetUserData())->BeginContact(contact);
+}
+
+void ContactListener::EndContact(b2Contact* contact) {
+	if(contact->GetFixtureA()->GetUserData() != NULL)
+		((b2ContactListener*)contact->GetFixtureA()->GetUserData())->EndContact(contact);
+	if(contact->GetFixtureB()->GetUserData() != NULL)
+		((b2ContactListener*)contact->GetFixtureB()->GetUserData())->EndContact(contact);
 }
