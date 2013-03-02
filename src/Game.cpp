@@ -17,6 +17,7 @@ void Game::start() {
 	Map map("assets/test.tmx");
 
 	window.setVerticalSyncEnabled(true);
+	window.setKeyRepeatEnabled(false);
 
 	sf::Vector2f position;
 
@@ -36,13 +37,19 @@ void Game::start() {
 				else if(event.key.code == sf::Keyboard::W)
 					map.player->jump();
 				else if(event.key.code == sf::Keyboard::D)
-					map.player->impulse(b2Vec2(100, 0));
+					map.player->impulseRight();
 				else if(event.key.code == sf::Keyboard::A)
-					map.player->impulse(b2Vec2(-100, 0));
+					map.player->impulseLeft();
 				else
 					window.close();
 			}
 		}
+
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			map.player->impulseRight();
+
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+				map.player->impulseLeft();
 
 		window.clear();
 

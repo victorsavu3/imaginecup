@@ -29,8 +29,11 @@ public:
 		return layer;
 	}
 
-	void impulse(b2Vec2 direction);
+	void impulseLeft();
+	void impulseRight();
 	void jump();
+
+	bool isGrounded();
 
 	void sync();
 

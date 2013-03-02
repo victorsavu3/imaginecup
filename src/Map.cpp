@@ -4,7 +4,7 @@
 
 #include "error.h"
 
-Map::Map(std::string file) : world(b2Vec2(0, 10)){
+Map::Map(std::string file) : world(b2Vec2(0, 50)){
 	Tmx::Map map;
 	map.ParseFile(file);
 
