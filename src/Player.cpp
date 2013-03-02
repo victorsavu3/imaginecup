@@ -142,14 +142,12 @@ void Player::sync() {
 void Player::BeginContact(b2Contact* contact) {
 	if(contact->GetFixtureA()->IsSensor() || contact->GetFixtureB()->IsSensor()){
 		grounded++;
-		std::cout<<"BeginContact "<<grounded<<std::endl;
 	}
 }
 
 void Player::EndContact(b2Contact* contact) {
 	if(contact->GetFixtureA()->IsSensor() || contact->GetFixtureB()->IsSensor()){
 		grounded--;
-		std::cout<<"EndContact "<<grounded<<std::endl;
 	}
 }
 
@@ -201,6 +199,8 @@ void Player::applyImpulse(float frame) {
 void Player::setState(State state) {
 	if(this->state == state)
 		return;
+
+	std::cout<<"Player state becomes: ";
 
 	switch(state){
 	case PlayerPreJump:
