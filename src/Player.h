@@ -40,7 +40,6 @@ public:
 	void EndContact(b2Contact* contact);
 private:
 	b2Body* body;
-	b2Fixture* wheel;
 	uint16_t layer;
 	shared_ptr<sf::Texture> texture;
 	Map* map;
