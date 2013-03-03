@@ -37,7 +37,7 @@ void Game::start() {
 					map.player->startImpulseRight();
 				else if(event.key.code == sf::Keyboard::A)
 					map.player->startImpulseLeft();
-				else
+				else if(event.key.code == sf::Keyboard::Escape)
 					window.close();
 			}
 

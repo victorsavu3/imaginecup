@@ -5,6 +5,8 @@ class Player;
 
 #include <SFML/Graphics.hpp>
 
+#include <spine-sfml/spine.h>
+
 #include <Box2D/Box2D.h>
 
 #include <boost/shared_ptr.hpp>
@@ -16,10 +18,15 @@ using boost::shared_ptr;
 #include "Map.h"
 #include "conversions.h"
 
-class Player : public sf::Sprite, public b2ContactListener {
+class Player : public b2ContactListener, public sf::Drawable {
 public:
 	Player(Map* map, b2Vec2 position, uint16_t layer);
 	virtual ~Player();
+
+	void BeginContact(b2Contact* contact);
+	void EndContact(b2Contact* contact);
+
+	virtual void draw(sf::RenderTarget&, sf::RenderStates) const;
 
 	uint16_t getLayer(){
 		return layer;
@@ -34,9 +41,6 @@ public:
 
 	void step(float frame, float time);
 
-	void BeginContact(b2Contact* contact);
-	void EndContact(b2Contact* contact);
-
 	enum Direction{
 		Left,
 		Right
@@ -44,12 +48,18 @@ public:
 
 	Direction getDirection(){
 		return direction;
-	};
+	}
+	const sf::Vector2f& getPosition() const {
+		return position;
+	}
+
+	void setPosition(const sf::Vector2f& position) {
+		this->position = position;
+	}
 
 private:
 	b2Body* body;
 	uint16_t layer;
-	shared_ptr<sf::Texture> texture;
 	Map* map;
 
 	enum State{
@@ -81,6 +91,12 @@ private:
 	void setDirection(Direction direction);
 
 	uint32_t grounded;
+	sf::Vector2f position;
+
+	shared_ptr<spine::Atlas> atlas;
+	shared_ptr<spine::Skeleton> skeleton;
+	shared_ptr<spine::SkeletonData> skeletonData;
+	shared_ptr<spine::Animation> run;
 };
 
 #endif /* PLAYER_H_ */

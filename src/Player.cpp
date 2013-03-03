@@ -1,5 +1,7 @@
 #include "Player.h"
 
+#include <fstream>
+
 #include "error.h"
 
 Player::~Player() {
@@ -59,10 +61,6 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 
 	body->CreateFixture(&fixtureDef);
 
-	texture = map->getTexture("player.png");
-	texture->setRepeated(true);
-	setTexture(*texture);
-
 	state = PlayerStanding;
 	impulse = ImpulseNone;
 	direction = Right;
@@ -71,6 +69,25 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	jumpStart = 0;
 	grounded = 0;
 
+	std::ifstream atlasFile("assets/spineboy.atlas");
+	atlas.reset(new spine::Atlas(atlasFile));
+
+	spine::SkeletonJson skeletonJson(atlas.get());
+
+	std::ifstream skeletonFile("assets/spineboy-skeleton.json");
+	skeletonData.reset(skeletonJson.readSkeletonData(skeletonFile));
+
+	std::ifstream animationFile("assets/spineboy-walk.json");
+	run.reset(skeletonJson.readAnimation(animationFile, skeletonData.get()));
+
+	skeleton.reset(new spine::Skeleton(skeletonData.get()));
+
+	skeleton->flipX = false;
+	skeleton->flipY = false;
+	skeleton->setToBindPose();
+	skeleton->getRootBone()->x = 200;
+	skeleton->getRootBone()->y = 420;
+	skeleton->updateWorldTransform();
 }
 
 void Player::jump() {
@@ -122,6 +139,8 @@ void Player::doJump() {
 void Player::step(float frame, float time) {
 	this->time = time;
 	applyImpulse(frame);
+
+	run->apply(skeleton.get(), time, true);
 
 	b2Vec2 speed = body->GetLinearVelocity();
 
@@ -249,6 +268,11 @@ void Player::setImpulse(Impulse impulse) {
 	this->impulse = impulse;
 }
 
+void Player::draw(sf::RenderTarget& target, sf::RenderStates renderStates) const {
+	renderStates.transform.translate(position);
+	target.draw(*skeleton, renderStates);
+}
+
 void Player::setDirection(Direction direction) {
 	if(this->direction == direction)
 		return;
@@ -256,11 +280,19 @@ void Player::setDirection(Direction direction) {
 	switch(direction){
 	case Right:
 		DBG("Direction becomes: Right");
-		setTextureRect(sf::IntRect(texture->getSize().x, 0, texture->getSize().x, texture->getSize().y));
+		skeleton->flipX = false;
+		skeleton->setToBindPose();
+		skeleton->getRootBone()->x = 200;
+		skeleton->getRootBone()->y = 420;
+		skeleton->updateWorldTransform();
 		break;
 	case Left:
 		DBG("Direction becomes: Left");
-		setTextureRect(sf::IntRect(texture->getSize().x, 0, -texture->getSize().x, texture->getSize().y));
+		skeleton->flipX = true;
+		skeleton->setToBindPose();
+		skeleton->getRootBone()->x = 200;
+		skeleton->getRootBone()->y = 420;
+		skeleton->updateWorldTransform();
 		break;
 	}
 
