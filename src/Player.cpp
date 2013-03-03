@@ -34,10 +34,21 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 
 	fixtureDef.shape = &circle;
 	fixtureDef.density = 0.1f;
+	fixtureDef.friction = 0.f;
+	fixtureDef.userData = (b2ContactListener*)this;
+
+	body->CreateFixture(&fixtureDef);
+
+	b2CircleShape circlef;
+	circlef.m_p.Set(0.5, 1.9f);
+	circlef.m_radius = 0.1;
+
+	fixtureDef.shape = &circlef;
+	fixtureDef.density = 0.1f;
 	fixtureDef.friction = 2.f;
 	fixtureDef.userData = (b2ContactListener*)this;
 
-	wheel = body->CreateFixture(&fixtureDef);
+	body->CreateFixture(&fixtureDef);
 
 	b2PolygonShape sensorBox;
 	sensorBox.SetAsBox(0.45f, 0.1f, b2Vec2(0.5, 2), 0);
@@ -49,13 +60,17 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	body->CreateFixture(&fixtureDef);
 
 	texture = map->getTexture("player.png");
-	this->setTexture(*texture);
+	texture->setRepeated(true);
+	setTexture(*texture);
 
-	setState(PlayerStanding);
+	state = PlayerStanding;
 	impulse = ImpulseNone;
+	direction = Right;
+
 	time = 0;
 	jumpStart = 0;
 	grounded = 0;
+
 }
 
 void Player::jump() {
@@ -104,24 +119,11 @@ void Player::doJump() {
 	setState(PlayerJumping);
 }
 
-b2Vec2 Player::clamp(b2Vec2 what) {
-	if(what.x > 10)
-		what.x = 10;
-	if(what.x < -10)
-		what.x = -10;
-	if(what.y > 10)
-		what.y = -10;
-	if(what.y < -10)
-		what.y = -10;
-
-	return what;
-}
-
 void Player::step(float frame, float time) {
 	this->time = time;
 	applyImpulse(frame);
 
-	b2Vec2 speed = clamp(body->GetLinearVelocity());
+	b2Vec2 speed = body->GetLinearVelocity();
 
 	sync();
 
@@ -184,10 +186,12 @@ void Player::applyImpulse(float frame) {
 		case ImpulseLeft:
 			if(speed.x > -5)
 				direction.x = -amount*frame;
+			setDirection(Left);
 			break;
 		case ImpulseRight:
 			if(speed.x < 5)
 				direction.x = amount*frame;
+			setDirection(Right);
 			break;
 		}
 
@@ -243,4 +247,22 @@ void Player::setImpulse(Impulse impulse) {
 	}
 
 	this->impulse = impulse;
+}
+
+void Player::setDirection(Direction direction) {
+	if(this->direction == direction)
+		return;
+
+	switch(direction){
+	case Right:
+		DBG("Direction becomes: Right");
+		setTextureRect(sf::IntRect(texture->getSize().x, 0, texture->getSize().x, texture->getSize().y));
+		break;
+	case Left:
+		DBG("Direction becomes: Left");
+		setTextureRect(sf::IntRect(texture->getSize().x, 0, -texture->getSize().x, texture->getSize().y));
+		break;
+	}
+
+	this->direction = direction;
 }

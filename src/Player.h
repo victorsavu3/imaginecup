@@ -59,8 +59,12 @@ private:
 		ImpulseBoth
 	} impulse;
 
+	enum Direction{
+		Left,
+		Right
+	} direction;
+
 	void doJump();
-	b2Vec2 clamp(b2Vec2 what);
 
 	float jumpStart;
 	float time;
@@ -70,6 +74,7 @@ private:
 
 	void setState(State state);
 	void setImpulse(Impulse impulse);
+	void setDirection(Direction direction);
 
 	uint32_t grounded;
 };
