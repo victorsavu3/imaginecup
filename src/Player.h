@@ -32,12 +32,20 @@ public:
 
 	void jump();
 
-	bool isGrounded();
-
 	void step(float frame, float time);
 
 	void BeginContact(b2Contact* contact);
 	void EndContact(b2Contact* contact);
+
+	enum Direction{
+		Left,
+		Right
+	} direction;
+
+	Direction getDirection(){
+		return direction;
+	};
+
 private:
 	b2Body* body;
 	uint16_t layer;
@@ -59,12 +67,8 @@ private:
 		ImpulseBoth
 	} impulse;
 
-	enum Direction{
-		Left,
-		Right
-	} direction;
-
 	void doJump();
+	bool isGrounded();
 
 	float jumpStart;
 	float time;

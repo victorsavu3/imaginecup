@@ -63,6 +63,8 @@ Map::Map(std::string file) : world(b2Vec2(0, 50)){
 		for(j = 0; j < layer->GetNumObjects(); j++){
 			const Tmx::Object* object = layer->GetObject(j);
 
+			FAIL_ON(layer->GetZOrder() == 0 || layers[layer->GetZOrder() - 1]->type != Layer::Tile, "Object layer %d must follow tile layer", layer->GetZOrder());
+
 			if(object->GetType() == "Collision"){
 				if(object->GetPolygon() != NULL){
 					b2BodyDef groundBodyDef;
@@ -96,12 +98,22 @@ Map::Map(std::string file) : world(b2Vec2(0, 50)){
 					FAIL("Objects of type 'Collision' must be a polygon or a polyline");
 				}
 			} else if(object->GetType() == "Player"){
-				player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), this), layer->GetZOrder()));
+				FAIL_ON(player, "There can only be one player instance")
+				player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), this), layer->GetZOrder() - 1));
 			}
 
 			layers[layer->GetZOrder()] = new ObjectLayer();
 		}
 	}
+
+	for(i=0;i<n;i++){
+		if(layers[i]->type == Layer::Object){
+			delete layers[i];
+			layers.erase(layers.begin() + i);
+		}
+	}
+
+	n=layers.size();
 
 	for(i=0;i<n;i++){
 		layers[i]->scale = (float)(i + 1) / n;
@@ -182,4 +194,8 @@ void ContactListener::EndContact(b2Contact* contact) {
 		((b2ContactListener*)contact->GetFixtureA()->GetUserData())->EndContact(contact);
 	if(contact->GetFixtureB()->GetUserData() != NULL)
 		((b2ContactListener*)contact->GetFixtureB()->GetUserData())->EndContact(contact);
+}
+
+float Map::getScale(uint16_t layer) {
+	return layers[layer]->scale;
 }

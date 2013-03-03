@@ -56,6 +56,8 @@ public:
 		debug = new DebugDraw();
 	}
 
+	float getScale(uint16_t layer);
+
 	b2World world;
 	shared_ptr<Player> player;
 

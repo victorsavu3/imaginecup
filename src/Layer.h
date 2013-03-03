@@ -22,7 +22,13 @@ using boost::shared_ptr;
 
 class Layer : public sf::Drawable{
 public:
-	Layer() : alpha(1), scale(1), color(1){};
+	enum LayerType{
+		Tile,
+		Image,
+		Object
+	} type;
+
+	Layer(LayerType type) : alpha(1), scale(1), color(1), type(type){};
 	virtual ~Layer() {};
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const = 0;
@@ -58,7 +64,7 @@ private:
 
 class ObjectLayer : public Layer{
 public:
-	ObjectLayer() {}
+	ObjectLayer() : Layer(Layer::Object){}
 	virtual ~ObjectLayer() {}
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const {}

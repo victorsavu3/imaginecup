@@ -7,6 +7,10 @@
 
 using boost::shared_ptr;
 
+#include <stdint.h>
+
+#include "Map.h"
+
 class Game {
 public:
 	Game();
@@ -14,9 +18,16 @@ public:
 
 	void start();
 
+	uint16_t getHeigth();
+	uint16_t getWidth();
+
+	sf::Vector2f getIdealCamera();
+	sf::Vector2f getCamera(float frame);
 private:
 	sf::RenderWindow window;
 	sf::Texture background;
+	sf::Vector2f camera;
+	Map map;
 };
 
 #endif /* GAME_H_ */

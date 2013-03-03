@@ -1,6 +1,6 @@
 #include "Layer.h"
 
-TileLayer::TileLayer(Map* map, const Tmx::Layer* layer) {
+TileLayer::TileLayer(Map* map, const Tmx::Layer* layer) : Layer(Layer::Tile){
 	this->map = map;
 
 	arrays.resize(map->tilesets.size(), sf::VertexArray(sf::Quads));
@@ -103,7 +103,7 @@ void TileLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	}
 }
 
-ImageLayer::ImageLayer(Map* map, std::string file) : array(sf::Quads){
+ImageLayer::ImageLayer(Map* map, std::string file) : array(sf::Quads), Layer(Layer::Image){
 	texture = map->getTexture(file);
 
 	uint32_t x, y;
