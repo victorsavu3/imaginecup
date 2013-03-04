@@ -4,6 +4,8 @@
 
 #include "error.h"
 
+#define Y_OFFSET 320
+
 Player::~Player() {
 }
 
@@ -85,8 +87,7 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	skeleton->flipX = false;
 	skeleton->flipY = false;
 	skeleton->setToBindPose();
-	skeleton->getRootBone()->x = 200;
-	skeleton->getRootBone()->y = 420;
+	skeleton->getRootBone()->y = Y_OFFSET;
 	skeleton->updateWorldTransform();
 }
 
@@ -141,6 +142,7 @@ void Player::step(float frame, float time) {
 	applyImpulse(frame);
 
 	run->apply(skeleton.get(), time, true);
+	skeleton->updateWorldTransform();
 
 	b2Vec2 speed = body->GetLinearVelocity();
 
@@ -270,6 +272,7 @@ void Player::setImpulse(Impulse impulse) {
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates renderStates) const {
 	renderStates.transform.translate(position);
+	renderStates.transform.scale(0.2, 0.2);
 	target.draw(*skeleton, renderStates);
 }
 
@@ -282,16 +285,14 @@ void Player::setDirection(Direction direction) {
 		DBG("Direction becomes: Right");
 		skeleton->flipX = false;
 		skeleton->setToBindPose();
-		skeleton->getRootBone()->x = 200;
-		skeleton->getRootBone()->y = 420;
+		skeleton->getRootBone()->y = Y_OFFSET;
 		skeleton->updateWorldTransform();
 		break;
 	case Left:
 		DBG("Direction becomes: Left");
 		skeleton->flipX = true;
 		skeleton->setToBindPose();
-		skeleton->getRootBone()->x = 200;
-		skeleton->getRootBone()->y = 420;
+		skeleton->getRootBone()->y = Y_OFFSET;
 		skeleton->updateWorldTransform();
 		break;
 	}
