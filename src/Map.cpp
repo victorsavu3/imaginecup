@@ -102,13 +102,12 @@ Map::Map(std::string file) : world(b2Vec2(0, 50)){
 				player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), this), layer->GetZOrder() - 1));
 			}
 
-			layers[layer->GetZOrder()] = new ObjectLayer();
+			layers[layer->GetZOrder()] = NULL;
 		}
 	}
 
 	for(i=0;i<n;i++){
-		if(layers[i]->type == Layer::Object){
-			delete layers[i];
+		if(layers[i] == NULL){
 			layers.erase(layers.begin() + i);
 		}
 	}

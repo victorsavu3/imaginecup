@@ -24,8 +24,7 @@ class Layer : public sf::Drawable{
 public:
 	enum LayerType{
 		Tile,
-		Image,
-		Object
+		Image
 	} type;
 
 	Layer(LayerType type) : alpha(1), scale(1), color(1), type(type){};
@@ -60,14 +59,6 @@ public:
 private:
 	shared_ptr<sf::Texture> texture;
 	sf::VertexArray array;
-};
-
-class ObjectLayer : public Layer{
-public:
-	ObjectLayer() : Layer(Layer::Object){}
-	virtual ~ObjectLayer() {}
-
-	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const {}
 };
 
 #endif /* LAYER_H_ */
