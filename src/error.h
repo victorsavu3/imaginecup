@@ -8,8 +8,6 @@
 #define likely(x)    __builtin_expect (!!(x), 1)
 #define unlikely(x)  __builtin_expect (!!(x), 0)
 
-	void trace();
-
 #define BUG_ON(x) 	do{ \
 						if(unlikely(x)){ \
 							fprintf(stderr, "*** BUG in %s: %s() at line %d\n", __FILE__, __FUNCTION__, __LINE__); \
