@@ -6,8 +6,8 @@ OBJ := $(BIN)obj/
 SRC := $(PWD)src/
 BUILD := $(PWD)build/
 
-LDFLAGS = -L $(BIN)lib -ltinyxml -lz -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lBox2D
-CPPFLAGS = -O0 -g3 -ggdb -DDEBUG -I tmx-parser -I SFML/include -I spine/spine-cpp/includes
+LDFLAGS = -L $(BIN)lib -ltinyxml -lz -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+CPPFLAGS = -O0 -g3 -ggdb -DDEBUG -I $(PWD)tmx-parser -I $(PWD)SFML/include -I $(PWD)spine/spine-cpp/includes -I $(PWD)Box2D
 
 .PHONY: all
 all: build

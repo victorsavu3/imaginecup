@@ -3,7 +3,7 @@ OBJS := $(addprefix $(OBJ), $(addsuffix .o, $(basename $(SRCS))))
 
 all: $(BIN)game
 
-$(BIN)game: $(OBJS) $(BIN)libtmxparser.a $(BIN)libtmxparser.a $(BIN)libspine.a | $(BIN) libs
+$(BIN)game: $(OBJS) $(BIN)libtmxparser.a $(BIN)libspine.a $(BIN)libBox2D.a | $(BIN) libs
 	@echo Linking $(@F)
 	@g++ -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
