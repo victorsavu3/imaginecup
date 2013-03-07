@@ -4,7 +4,7 @@
 
 #include "error.h"
 
-Map::Map(std::string file) : world(b2Vec2(0, 50)){
+Map::Map(std::string file){
 	Tmx::Map map;
 	map.ParseFile(file);
 
@@ -60,68 +60,25 @@ Map::Map(std::string file) : world(b2Vec2(0, 50)){
 	for(i=0; i<map.GetNumObjectGroups(); i++){
 		const Tmx::ObjectGroup *layer = map.GetObjectGroup(i);
 
-		for(j = 0; j < layer->GetNumObjects(); j++){
-			const Tmx::Object* object = layer->GetObject(j);
-
 			FAIL_ON(layer->GetZOrder() == 0 || layers[layer->GetZOrder() - 1]->type != Layer::Tile, "Object layer %d must follow tile layer", layer->GetZOrder());
 
-			if(object->GetType() == "Collision"){
-				if(object->GetPolygon() != NULL){
-					b2BodyDef groundBodyDef;
-					groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), this);
-
-					b2Body* groundBody = world.CreateBody(&groundBodyDef);
-
-					b2PolygonShape groundBox;
-					b2Vec2 points[object->GetPolygon()->GetNumPoints()];
-					for(k=0;k<object->GetPolygon()->GetNumPoints();k++){
-						points[k] = convert(object->GetPolygon()->GetPoint(k), this);
-					}
-					groundBox.Set(points, object->GetPolygon()->GetNumPoints());
-
-					groundBody->CreateFixture(&groundBox, 0);
-				} else if(object->GetPolyline() != NULL){
-					b2BodyDef groundBodyDef;
-					groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), this);
-
-					b2Body* groundBody = world.CreateBody(&groundBodyDef);
-
-					b2ChainShape chain;
-					b2Vec2 points[object->GetPolyline()->GetNumPoints()];
-					for(k=0;k<object->GetPolyline()->GetNumPoints();k++){
-						points[k] = convert(object->GetPolyline()->GetPoint(k), this);
-					}
-					chain.CreateChain(points, object->GetPolyline()->GetNumPoints());
-
-					groundBody->CreateFixture(&chain, 0);
-				} else {
-					FAIL("Objects of type 'Collision' must be a polygon or a polyline");
-				}
-			} else if(object->GetType() == "Player"){
-				FAIL_ON(player, "There can only be one player instance")
-				player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), this), layer->GetZOrder() - 1));
-			}
-
-			layers[layer->GetZOrder()] = NULL;
-		}
-	}
-
-	for(i=0;i<n;i++){
-		if(layers[i] == NULL){
-			layers.erase(layers.begin() + i);
-		}
+			layers[layer->GetZOrder()] = new ObjectLayer(this, layer);
 	}
 
 	n=layers.size();
 
+	uint16_t paralaxLayerCount = 0, at = 0;
+
+	for(i=0;i<n;i++)
+		if(layers[i]->type == Layer::Image || layers[i]->type == Layer::Tile)
+			paralaxLayerCount++;
+
 	for(i=0;i<n;i++){
-		layers[i]->scale = (float)(i + 1) / n;
-		layers[i]->color = (float)(i + 1) / n;
+		if(layers[i]->type == Layer::Image || layers[i]->type == Layer::Tile)
+			at++;
+		layers[i]->scale = (float)(at + 1) / paralaxLayerCount;
+		layers[i]->color = (float)(at + 1) / paralaxLayerCount;
 	}
-
-	world.SetContactListener(&listener);
-
-	debug = NULL;
 }
 
 Map::~Map() {
@@ -144,9 +101,6 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 		state.shader = &*desaturate;
 
 		target.draw(*layers[i], state);
-
-		if(i == player->getLayer())
-			target.draw(*player, state);
 	}
 }
 
@@ -170,29 +124,11 @@ shared_ptr<sf::Texture> Map::getTexture(std::string file) {
 }
 
 void Map::step(float frame, float time) {
-	world.Step(frame, 8, 3);
-	player->step(frame, time);
+	uint16_t i;
 
-	if(debug){
-		debug->clear();
-		world.SetDebugDraw(debug);
-		world.DrawDebugData();
-		debug->display();
+	for(i=0;i<layers.size();i++){
+		layers[i]->step(frame, time);
 	}
-}
-
-void ContactListener::BeginContact(b2Contact* contact) {
-	if(contact->GetFixtureA()->GetUserData() != NULL)
-		((b2ContactListener*)contact->GetFixtureA()->GetUserData())->BeginContact(contact);
-	if(contact->GetFixtureB()->GetUserData() != NULL)
-		((b2ContactListener*)contact->GetFixtureB()->GetUserData())->BeginContact(contact);
-}
-
-void ContactListener::EndContact(b2Contact* contact) {
-	if(contact->GetFixtureA()->GetUserData() != NULL)
-		((b2ContactListener*)contact->GetFixtureA()->GetUserData())->EndContact(contact);
-	if(contact->GetFixtureB()->GetUserData() != NULL)
-		((b2ContactListener*)contact->GetFixtureB()->GetUserData())->EndContact(contact);
 }
 
 float Map::getScale(uint16_t layer) {

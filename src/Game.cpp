@@ -29,9 +29,7 @@ void Game::start() {
 				window.close();
 
 			if(event.type == sf::Event::KeyPressed){
-				if(event.key.code == sf::Keyboard::P)
-					map.debugPhysics();
-				else if(event.key.code == sf::Keyboard::W)
+				if(event.key.code == sf::Keyboard::W)
 					map.player->jump();
 				else if(event.key.code == sf::Keyboard::D)
 					map.player->startImpulseRight();

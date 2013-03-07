@@ -16,11 +16,7 @@ class Map;
 #include "Player.h"
 #include "DebugDraw.h"
 
-class ContactListener : public b2ContactListener {
-public:
-	void BeginContact(b2Contact* contact);
-	void EndContact(b2Contact* contact);
-};
+
 
 class Map : public sf::Drawable{
 public:
@@ -52,13 +48,9 @@ public:
 	}
 
 	void step(float frame, float time);
-	void debugPhysics(){
-		debug = new DebugDraw();
-	}
 
 	float getScale(uint16_t layer);
 
-	b2World world;
 	shared_ptr<Player> player;
 
 private:
@@ -69,8 +61,6 @@ private:
 	std::vector<Layer*> layers;
 	std::map<std::string, shared_ptr<sf::Texture> > textures;
 	shared_ptr<sf::Shader> desaturate;
-	DebugDraw* debug;
-	ContactListener listener;
 
 	friend class TileLayer;
 };

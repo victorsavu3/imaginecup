@@ -5,13 +5,13 @@
 #include "error.h"
 
 #define Y_OFFSET 320
+#define X_OFFSET 80
 
 Player::~Player() {
 }
 
-Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
-	this->map = map;
-	this->layer = layer;
+Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(location){
+	this->map = layer->map;
 
 	b2BodyDef bodyDef;
 
@@ -19,7 +19,7 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	bodyDef.position = position;
 	bodyDef.fixedRotation = true;
 
-	body = map->world.CreateBody(&bodyDef);
+	body = layer->world.CreateBody(&bodyDef);
 
 	b2PolygonShape dynamicBox;
 	dynamicBox.SetAsBox(0.47f, 0.75f, b2Vec2(0.5, 0.75), 0);
@@ -33,8 +33,8 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	body->CreateFixture(&fixtureDef);
 
 	b2CircleShape circle;
-	circle.m_p.Set(0.5, 1.5f);
-	circle.m_radius = 0.49;
+	circle.m_p.Set(0.5f, 1.5f);
+	circle.m_radius = 0.49f;
 
 	fixtureDef.shape = &circle;
 	fixtureDef.density = 0.1f;
@@ -44,7 +44,7 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	body->CreateFixture(&fixtureDef);
 
 	b2CircleShape circlef;
-	circlef.m_p.Set(0.5, 1.9f);
+	circlef.m_p.Set(0.5f, 1.9f);
 	circlef.m_radius = 0.1;
 
 	fixtureDef.shape = &circlef;
@@ -55,7 +55,7 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	body->CreateFixture(&fixtureDef);
 
 	b2PolygonShape sensorBox;
-	sensorBox.SetAsBox(0.45f, 0.1f, b2Vec2(0.5, 2), 0);
+	sensorBox.SetAsBox(0.45f, 0.1f, b2Vec2(0.5f, 2.f), 0);
 
 	fixtureDef.shape = &sensorBox;
 	fixtureDef.isSensor = true;
@@ -87,6 +87,7 @@ Player::Player(Map* map, b2Vec2 position, uint16_t layer) {
 	skeleton->flipX = false;
 	skeleton->flipY = false;
 	skeleton->setToBindPose();
+	skeleton->getRootBone()->x = X_OFFSET;
 	skeleton->getRootBone()->y = Y_OFFSET;
 	skeleton->updateWorldTransform();
 }
@@ -286,6 +287,7 @@ void Player::setDirection(Direction direction) {
 		skeleton->flipX = false;
 		skeleton->setToBindPose();
 		skeleton->getRootBone()->y = Y_OFFSET;
+		skeleton->getRootBone()->x = X_OFFSET;
 		skeleton->updateWorldTransform();
 		break;
 	case Left:
@@ -293,6 +295,7 @@ void Player::setDirection(Direction direction) {
 		skeleton->flipX = true;
 		skeleton->setToBindPose();
 		skeleton->getRootBone()->y = Y_OFFSET;
+		skeleton->getRootBone()->x = X_OFFSET;
 		skeleton->updateWorldTransform();
 		break;
 	}

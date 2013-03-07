@@ -1,5 +1,8 @@
 #include "Layer.h"
 
+#include "conversions.h"
+#include "error.h"
+
 TileLayer::TileLayer(Map* map, const Tmx::Layer* layer) : Layer(Layer::Tile){
 	this->map = map;
 
@@ -137,4 +140,67 @@ ImageLayer::ImageLayer(Map* map, std::string file) : array(sf::Quads), Layer(Lay
 void ImageLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	state.texture = &(*texture);
 	target.draw(array, state);
+}
+
+ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map){
+	world.SetContactListener(&listener);
+
+	uint16_t j,k;
+
+	for(j = 0; j < layer->GetNumObjects(); j++){
+		const Tmx::Object* object = layer->GetObject(j);
+
+		if(object->GetType() == "Collision"){
+			if(object->GetPolygon() != NULL){
+				b2BodyDef groundBodyDef;
+				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+
+				b2Body* groundBody = world.CreateBody(&groundBodyDef);
+
+				b2PolygonShape groundBox;
+				b2Vec2 points[object->GetPolygon()->GetNumPoints()];
+				for(k=0;k<object->GetPolygon()->GetNumPoints();k++){
+					points[k] = convert(object->GetPolygon()->GetPoint(k), map);
+				}
+				groundBox.Set(points, object->GetPolygon()->GetNumPoints());
+
+				groundBody->CreateFixture(&groundBox, 0);
+			} else if(object->GetPolyline() != NULL){
+				b2BodyDef groundBodyDef;
+				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+
+				b2Body* groundBody = world.CreateBody(&groundBodyDef);
+
+				b2ChainShape chain;
+				b2Vec2 points[object->GetPolyline()->GetNumPoints()];
+				for(k=0;k<object->GetPolyline()->GetNumPoints();k++){
+					points[k] = convert(object->GetPolyline()->GetPoint(k), map);
+				}
+				chain.CreateChain(points, object->GetPolyline()->GetNumPoints());
+
+				groundBody->CreateFixture(&chain, 0);
+			} else {
+				FAIL("Objects of type 'Collision' must be a polygon or a polyline");
+			}
+		} else if(object->GetType() == "Player"){
+			FAIL_ON(map->player, "There can only be one player instance")
+			map->player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), map), layer->GetZOrder()));
+			objects.insert(map->player);
+		}
+	}
+}
+
+void ObjectLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
+	std::set<shared_ptr<Entity> >::iterator it;
+	for(it=objects.begin(); it !=objects.end(); it++){
+		target.draw(**it, state);
+	}
+}
+
+void ObjectLayer::step(float frame, float time) {
+	world.Step(frame, 8, 3);
+	std::set<shared_ptr<Entity> >::iterator it;
+	for(it=objects.begin(); it !=objects.end(); it++){
+		(*it)->step(frame, time);
+	}
 }

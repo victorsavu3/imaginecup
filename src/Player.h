@@ -17,20 +17,20 @@ using boost::shared_ptr;
 
 #include "Map.h"
 #include "conversions.h"
+#include "Entity.h"
+#include "Layer.h"
 
-class Player : public b2ContactListener, public sf::Drawable {
+
+class Player : public b2ContactListener, public Entity {
 public:
-	Player(Map* map, b2Vec2 position, uint16_t layer);
+	Player(ObjectLayer* layer, b2Vec2 position, uint16_t location);
 	virtual ~Player();
 
 	void BeginContact(b2Contact* contact);
 	void EndContact(b2Contact* contact);
 
 	virtual void draw(sf::RenderTarget&, sf::RenderStates) const;
-
-	uint16_t getLayer(){
-		return layer;
-	}
+	virtual void step(float frame, float time);
 
 	void startImpulseLeft();
 	void startImpulseRight();
@@ -38,8 +38,6 @@ public:
 	void stopImpulseRight();
 
 	void jump();
-
-	void step(float frame, float time);
 
 	enum Direction{
 		Left,
@@ -57,9 +55,13 @@ public:
 		this->position = position;
 	}
 
+	uint16_t getLayer() const {
+		return layer;
+	}
+
 private:
-	b2Body* body;
 	uint16_t layer;
+	b2Body* body;
 	Map* map;
 
 	enum State{

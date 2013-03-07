@@ -2,6 +2,9 @@
 #define LAYER_H_
 
 class Layer;
+class TileLayer;
+class ImageLayer;
+class ObjectLayer;
 
 #include <SFML/Graphics.hpp>
 
@@ -19,18 +22,22 @@ using boost::shared_ptr;
 #include <stdint.h>
 
 #include "Map.h"
+#include "Entity.h"
+#include "ContactListener.h"
 
-class Layer : public sf::Drawable{
+class Layer : public sf::Drawable, public Updatable{
 public:
 	enum LayerType{
 		Tile,
-		Image
+		Image,
+		Object
 	} type;
 
 	Layer(LayerType type) : alpha(1), scale(1), color(1), type(type){};
 	virtual ~Layer() {};
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const = 0;
+	virtual void step(float frame, float time) = 0;
 
 	float alpha;
 	float scale;
@@ -43,6 +50,7 @@ public:
 	virtual ~TileLayer() {}
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
+	virtual void step(float frame, float time){}
 
 	friend class Map; /* allow the map to fill out the vertex arrays */
 private:
@@ -56,9 +64,25 @@ public:
 	virtual ~ImageLayer() {}
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
+	virtual void step(float frame, float time){}
 private:
 	shared_ptr<sf::Texture> texture;
 	sf::VertexArray array;
+};
+
+class ObjectLayer : public Layer{
+public:
+	ObjectLayer(Map* map, const Tmx::ObjectGroup* layer);
+	virtual ~ObjectLayer() {}
+
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
+	virtual void step(float frame, float time);
+
+	b2World world;
+	Map* map;
+private:
+	std::set<shared_ptr<Entity> > objects;
+	ContactListener listener;
 };
 
 #endif /* LAYER_H_ */
