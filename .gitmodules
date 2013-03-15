@@ -9,4 +9,4 @@
 	url = git@github.com:victorsavu3/tmx-parser.git
 [submodule "spine"]
 	path = spine
-	url = https://github.com/victorsavu3/spine-runtimes.git
+	url = https://github.com/EsotericSoftware/spine-runtimes.git
