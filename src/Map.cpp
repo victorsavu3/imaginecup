@@ -52,6 +52,12 @@ Map::Map(std::string file){
 
 		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
 		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
+		layers[layer->GetZOrder()]->alpha = layer->GetOpacity();
+
+		if(layer->GetProperties().HasProperty("Saturation"))
+			layers[layer->GetZOrder()]->color = layer->GetProperties().GetFloatProperty("Saturation");
+		else
+			layers[layer->GetZOrder()]->color = layers[layer->GetZOrder()]->scale;
 	}
 
 	for(i=0; i<map.GetNumImageLayers(); i++){
@@ -61,6 +67,12 @@ Map::Map(std::string file){
 
 		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
 		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
+		layers[layer->GetZOrder()]->alpha = layer->GetOpacity();
+
+		if(layer->GetProperties().HasProperty("Saturation"))
+			layers[layer->GetZOrder()]->color = layer->GetProperties().GetFloatProperty("Saturation");
+		else
+			layers[layer->GetZOrder()]->color = layers[layer->GetZOrder()]->scale;
 	}
 
 	for(i=0; i<map.GetNumObjectGroups(); i++){
@@ -70,6 +82,12 @@ Map::Map(std::string file){
 
 		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
 		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
+		layers[layer->GetZOrder()]->alpha = layer->GetOpacity();
+
+		if(layer->GetProperties().HasProperty("Saturation"))
+			layers[layer->GetZOrder()]->color = layer->GetProperties().GetFloatProperty("Saturation");
+		else
+			layers[layer->GetZOrder()]->color = layers[layer->GetZOrder()]->scale;
 	}
 }
 
