@@ -30,7 +30,8 @@ public:
 	enum LayerType{
 		Tile,
 		Image,
-		Object
+		Object,
+		Decoration
 	} type;
 
 	Layer(LayerType type) : alpha(1), scale(1), saturation(1), type(type){};
@@ -83,6 +84,19 @@ public:
 private:
 	std::set<shared_ptr<Entity> > objects;
 	ContactListener listener;
+};
+
+class DecorationLayer : public Layer{
+public:
+	DecorationLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx);
+	virtual ~DecorationLayer() {}
+
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
+	virtual void step(float frame, float time);
+private:
+	sf::VertexArray array;
+	uint16_t tilesetID;
+	Map* map;
 };
 
 #endif /* LAYER_H_ */

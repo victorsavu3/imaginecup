@@ -58,6 +58,9 @@ Map::Map(std::string file){
 			layers[layer->GetZOrder()]->saturation = layer->GetProperties().GetFloatProperty("Saturation");
 		else
 			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
+
+		FAIL_ON(layers[layer->GetZOrder()]->saturation > 1 || layers[layer->GetZOrder()]->saturation < 0, "Saturation is between 0 and 1.0, actual is %f on layer %d", layers[layer->GetZOrder()]->saturation, layer->GetZOrder());
+		FAIL_ON(layers[layer->GetZOrder()]->scale > 1 || layers[layer->GetZOrder()]->scale < 0, "Scale is between 0 and 1.0, actual is %f on layer %d", layers[layer->GetZOrder()]->scale, layer->GetZOrder());
 	}
 
 	for(i=0; i<map.GetNumImageLayers(); i++){
@@ -73,12 +76,20 @@ Map::Map(std::string file){
 			layers[layer->GetZOrder()]->saturation = layer->GetProperties().GetFloatProperty("Saturation");
 		else
 			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
+
+		FAIL_ON(layers[layer->GetZOrder()]->saturation > 1 || layers[layer->GetZOrder()]->saturation < 0, "Saturation is between 0 and 1.0, actual is %f on layer %d", layers[layer->GetZOrder()]->saturation, layer->GetZOrder());
+				FAIL_ON(layers[layer->GetZOrder()]->scale > 1 || layers[layer->GetZOrder()]->scale < 0, "Scale is between 0 and 1.0, actual is %f on layer %d", layers[layer->GetZOrder()]->scale, layer->GetZOrder());
 	}
 
 	for(i=0; i<map.GetNumObjectGroups(); i++){
 		const Tmx::ObjectGroup *layer = map.GetObjectGroup(i);
 
-		layers[layer->GetZOrder()] = new ObjectLayer(this, layer, &map);
+		FAIL_ON(!layer->GetProperties().HasProperty("Type"), "Object layers must have a Type");
+
+		if(layer->GetProperties().GetLiteralProperty("Type") == "Playable")
+			layers[layer->GetZOrder()] = new ObjectLayer(this, layer, &map);
+		else if(layer->GetProperties().GetLiteralProperty("Type") == "Decoration")
+			layers[layer->GetZOrder()] = new DecorationLayer(this, layer, &map);
 
 		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
 		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
@@ -88,7 +99,11 @@ Map::Map(std::string file){
 			layers[layer->GetZOrder()]->saturation = layer->GetProperties().GetFloatProperty("Saturation");
 		else
 			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
+
+		FAIL_ON(layers[layer->GetZOrder()]->saturation > 1 || layers[layer->GetZOrder()]->saturation < 0, "Saturation is between 0 and 1.0");
+		FAIL_ON(layers[layer->GetZOrder()]->scale > 1 || layers[layer->GetZOrder()]->scale < 0, "Scale is between 0 and 1.0");
 	}
+
 
 	FAIL_ON(!player, "Missing Player");
 }
