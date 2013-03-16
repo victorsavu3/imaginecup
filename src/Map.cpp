@@ -89,6 +89,8 @@ Map::Map(std::string file){
 		else
 			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
 	}
+
+	FAIL_ON(!player, "Missing Player");
 }
 
 Map::~Map() {
