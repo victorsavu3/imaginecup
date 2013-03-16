@@ -49,35 +49,27 @@ Map::Map(std::string file){
 
 		if(layer->GetWidth() * tw > w)
 			w = layer->GetWidth() * tw;
+
+		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
+		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
 	}
 
 	for(i=0; i<map.GetNumImageLayers(); i++){
 		const Tmx::ImageLayer *layer = map.GetImageLayer(i);
 
 		layers[layer->GetZOrder()] = new ImageLayer(this, layer->GetImage()->GetSource());
+
+		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
+		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
 	}
 
 	for(i=0; i<map.GetNumObjectGroups(); i++){
 		const Tmx::ObjectGroup *layer = map.GetObjectGroup(i);
 
-			FAIL_ON(layer->GetZOrder() == 0 || layers[layer->GetZOrder() - 1]->type != Layer::Tile, "Object layer %d must follow tile layer", layer->GetZOrder());
+		layers[layer->GetZOrder()] = new ObjectLayer(this, layer);
 
-			layers[layer->GetZOrder()] = new ObjectLayer(this, layer);
-	}
-
-	n=layers.size();
-
-	uint16_t paralaxLayerCount = 0, at = 0;
-
-	for(i=0;i<n;i++)
-		if(layers[i]->type == Layer::Image || layers[i]->type == Layer::Tile)
-			paralaxLayerCount++;
-
-	for(i=0;i<n;i++){
-		if(layers[i]->type == Layer::Image || layers[i]->type == Layer::Tile)
-			at++;
-		layers[i]->scale = (float)(at + 1) / paralaxLayerCount;
-		layers[i]->color = (float)(at + 1) / paralaxLayerCount;
+		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
+		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
 	}
 }
 
