@@ -142,7 +142,7 @@ void ImageLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	target.draw(array, state);
 }
 
-ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map){
+ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map){
 	world.SetContactListener(&listener);
 
 	uint16_t j,k;
@@ -150,42 +150,65 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer) : Layer(Layer:
 	for(j = 0; j < layer->GetNumObjects(); j++){
 		const Tmx::Object* object = layer->GetObject(j);
 
-		if(object->GetType() == "Collision"){
-			if(object->GetPolygon() != NULL){
-				b2BodyDef groundBodyDef;
-				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+		if(object->GetGid() != 0){
+			int tilesetID = tmx->FindTilesetIndex(object->GetGid());
 
-				b2Body* groundBody = world.CreateBody(&groundBodyDef);
+			Tmx::MapTile tile(object->GetGid(), tmx->GetTileset(tilesetID)->GetFirstGid(), tilesetID);
 
-				b2PolygonShape groundBox;
-				b2Vec2 points[object->GetPolygon()->GetNumPoints()];
-				for(k=0;k<object->GetPolygon()->GetNumPoints();k++){
-					points[k] = convert(object->GetPolygon()->GetPoint(k), map);
+			shared_ptr<Entity> entity(new Entity());
+
+			entity->setTexture(*(map->tilesets[tilesetID]));
+			entity->setPosition(sf::Vector2f(object->GetX(), object->GetY()));
+			entity->setOrigin(sf::Vector2f(0, map->th));
+
+			uint16_t tpw = map->tilesets[tile.tilesetId]->getSize().x / map->tw;
+
+			uint16_t ox, oy;
+
+			ox = (tile.id % tpw) * map->tw;
+			oy = (tile.id / tpw) * map->th;
+
+			entity->setTextureRect(sf::IntRect(ox, oy, map->tw, map->th));
+
+			objects.insert(entity);
+		} else {
+			if(object->GetType() == "Collision"){
+				if(object->GetPolygon() != NULL){
+					b2BodyDef groundBodyDef;
+					groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+
+					b2Body* groundBody = world.CreateBody(&groundBodyDef);
+
+					b2PolygonShape groundBox;
+					b2Vec2 points[object->GetPolygon()->GetNumPoints()];
+					for(k=0;k<object->GetPolygon()->GetNumPoints();k++){
+						points[k] = convert(object->GetPolygon()->GetPoint(k), map);
+					}
+					groundBox.Set(points, object->GetPolygon()->GetNumPoints());
+
+					groundBody->CreateFixture(&groundBox, 0);
+				} else if(object->GetPolyline() != NULL){
+					b2BodyDef groundBodyDef;
+					groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+
+					b2Body* groundBody = world.CreateBody(&groundBodyDef);
+
+					b2ChainShape chain;
+					b2Vec2 points[object->GetPolyline()->GetNumPoints()];
+					for(k=0;k<object->GetPolyline()->GetNumPoints();k++){
+						points[k] = convert(object->GetPolyline()->GetPoint(k), map);
+					}
+					chain.CreateChain(points, object->GetPolyline()->GetNumPoints());
+
+					groundBody->CreateFixture(&chain, 0);
+				} else {
+					FAIL("Objects of type 'Collision' must be a polygon or a polyline");
 				}
-				groundBox.Set(points, object->GetPolygon()->GetNumPoints());
-
-				groundBody->CreateFixture(&groundBox, 0);
-			} else if(object->GetPolyline() != NULL){
-				b2BodyDef groundBodyDef;
-				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
-
-				b2Body* groundBody = world.CreateBody(&groundBodyDef);
-
-				b2ChainShape chain;
-				b2Vec2 points[object->GetPolyline()->GetNumPoints()];
-				for(k=0;k<object->GetPolyline()->GetNumPoints();k++){
-					points[k] = convert(object->GetPolyline()->GetPoint(k), map);
-				}
-				chain.CreateChain(points, object->GetPolyline()->GetNumPoints());
-
-				groundBody->CreateFixture(&chain, 0);
-			} else {
-				FAIL("Objects of type 'Collision' must be a polygon or a polyline");
+			} else if(object->GetType() == "Player"){
+				FAIL_ON(map->player, "There can only be one player instance")
+				map->player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), map), layer->GetZOrder()));
+				objects.insert(map->player);
 			}
-		} else if(object->GetType() == "Player"){
-			FAIL_ON(map->player, "There can only be one player instance")
-			map->player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), map), layer->GetZOrder()));
-			objects.insert(map->player);
 		}
 	}
 }

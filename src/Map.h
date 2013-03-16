@@ -63,6 +63,7 @@ private:
 	shared_ptr<sf::Shader> desaturate;
 
 	friend class TileLayer;
+	friend class ObjectLayer;
 };
 
 #endif /* MAP_H_ */

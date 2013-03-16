@@ -66,7 +66,7 @@ Map::Map(std::string file){
 	for(i=0; i<map.GetNumObjectGroups(); i++){
 		const Tmx::ObjectGroup *layer = map.GetObjectGroup(i);
 
-		layers[layer->GetZOrder()] = new ObjectLayer(this, layer);
+		layers[layer->GetZOrder()] = new ObjectLayer(this, layer, &map);
 
 		FAIL_ON(!layer->GetProperties().HasProperty("Scale"), "Layer must have 'Scale' property");
 		layers[layer->GetZOrder()]->scale = layer->GetProperties().GetFloatProperty("Scale");
