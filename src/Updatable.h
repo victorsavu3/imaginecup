@@ -3,7 +3,7 @@
 
 class Updatable {
 public:
-	virtual ~Updatable() {};
+	virtual ~Updatable() {}
 	virtual void step(float frame, float time) = 0;
 };
 
