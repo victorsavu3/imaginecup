@@ -55,9 +55,9 @@ Map::Map(std::string file){
 		layers[layer->GetZOrder()]->alpha = layer->GetOpacity();
 
 		if(layer->GetProperties().HasProperty("Saturation"))
-			layers[layer->GetZOrder()]->color = layer->GetProperties().GetFloatProperty("Saturation");
+			layers[layer->GetZOrder()]->saturation = layer->GetProperties().GetFloatProperty("Saturation");
 		else
-			layers[layer->GetZOrder()]->color = layers[layer->GetZOrder()]->scale;
+			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
 	}
 
 	for(i=0; i<map.GetNumImageLayers(); i++){
@@ -70,9 +70,9 @@ Map::Map(std::string file){
 		layers[layer->GetZOrder()]->alpha = layer->GetOpacity();
 
 		if(layer->GetProperties().HasProperty("Saturation"))
-			layers[layer->GetZOrder()]->color = layer->GetProperties().GetFloatProperty("Saturation");
+			layers[layer->GetZOrder()]->saturation = layer->GetProperties().GetFloatProperty("Saturation");
 		else
-			layers[layer->GetZOrder()]->color = layers[layer->GetZOrder()]->scale;
+			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
 	}
 
 	for(i=0; i<map.GetNumObjectGroups(); i++){
@@ -85,9 +85,9 @@ Map::Map(std::string file){
 		layers[layer->GetZOrder()]->alpha = layer->GetOpacity();
 
 		if(layer->GetProperties().HasProperty("Saturation"))
-			layers[layer->GetZOrder()]->color = layer->GetProperties().GetFloatProperty("Saturation");
+			layers[layer->GetZOrder()]->saturation = layer->GetProperties().GetFloatProperty("Saturation");
 		else
-			layers[layer->GetZOrder()]->color = layers[layer->GetZOrder()]->scale;
+			layers[layer->GetZOrder()]->saturation = layers[layer->GetZOrder()]->scale;
 	}
 }
 
@@ -104,7 +104,7 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	for(i=0;i<layers.size();i++){
 		sf::RenderStates state = states;
 
-		desaturate->setParameter("saturation", layers[i]->color);
+		desaturate->setParameter("saturation", layers[i]->saturation);
 		desaturate->setParameter("alpha", layers[i]->alpha);
 
 		state.transform.translate( - position * layers[i]->scale);

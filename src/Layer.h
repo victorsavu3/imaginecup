@@ -33,7 +33,7 @@ public:
 		Object
 	} type;
 
-	Layer(LayerType type) : alpha(1), scale(1), color(1), type(type){};
+	Layer(LayerType type) : alpha(1), scale(1), saturation(1), type(type){};
 	virtual ~Layer() {};
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const = 0;
@@ -41,7 +41,7 @@ public:
 
 	float alpha;
 	float scale;
-	float color;
+	float saturation;
 };
 
 class TileLayer : public Layer{
