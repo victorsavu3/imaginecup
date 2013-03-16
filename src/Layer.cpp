@@ -151,7 +151,9 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 		const Tmx::Object* object = layer->GetObject(j);
 
 		if(object->GetType() == "Collision"){
-			if(object->GetPolygon() != NULL){
+			if(object->GetEllipse() != NULL) {
+				FAIL("Objects of type 'Collision' must be a polygon, polyline or box");
+			} else if(object->GetPolygon() != NULL){
 				b2BodyDef groundBodyDef;
 				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
 
@@ -180,8 +182,19 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 
 				groundBody->CreateFixture(&chain, 0);
 			} else {
-				FAIL("Objects of type 'Collision' must be a polygon or a polyline");
+				b2BodyDef groundBodyDef;
+				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+
+				b2Body* body = world.CreateBody(&groundBodyDef);
+
+				b2PolygonShape dynamicBox;
+				dynamicBox.SetAsBox(convert(sf::Vector2f(object->GetWidth(), object->GetHeight()), map).x / 2,
+						convert(sf::Vector2f(object->GetWidth(), object->GetHeight()), map). y / 2,
+						convert(sf::Vector2f(object->GetWidth() / 2, object->GetHeight() / 2), map), 0);
+
+				body->CreateFixture(&dynamicBox, 0);
 			}
+
 		} else if(object->GetType() == "Player"){
 			FAIL_ON(map->player, "There can only be one player instance")
 			map->player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), map), layer->GetZOrder()));
