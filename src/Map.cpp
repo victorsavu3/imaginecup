@@ -94,7 +94,7 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	for(i=0;i<layers.size();i++){
 		sf::RenderStates state = states;
 
-		desaturate->setParameter("saturation", layers[i]->scale);
+		desaturate->setParameter("saturation", layers[i]->color);
 		desaturate->setParameter("alpha", layers[i]->alpha);
 
 		state.transform.translate( - position * layers[i]->scale);
