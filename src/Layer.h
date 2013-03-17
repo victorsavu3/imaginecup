@@ -74,7 +74,7 @@ private:
 class ObjectLayer : public Layer{
 public:
 	ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx);
-	virtual ~ObjectLayer() {}
+	virtual ~ObjectLayer();
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates state) const;
 	virtual void step(float frame, float time);

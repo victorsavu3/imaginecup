@@ -109,6 +109,8 @@ Map::Map(std::string file){
 }
 
 Map::~Map() {
+	player.reset();
+
 	uint16_t i;
 
 	for(i=0;i<layers.size();i++)

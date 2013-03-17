@@ -8,6 +8,7 @@
 #define X_OFFSET 80
 
 Player::~Player() {
+	((ObjectLayer*)map->layers[layer])->world.DestroyBody(body);
 }
 
 Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(location), Collider(Collider::Player), inPortal(false), portalDirection(Portal::Up){
@@ -124,6 +125,7 @@ void Player::jump() {
 		Map* map = this->map; /* avoid use after free as this class is deleted */
 
 		shared_ptr<Player> player = shared_ptr<Player>(new Player(layerO, body->GetPosition(), to));
+
 
 		((ObjectLayer*)map->layers[layer])->objects.erase(map->player);
 

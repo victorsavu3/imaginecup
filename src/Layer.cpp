@@ -142,7 +142,7 @@ void ImageLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	target.draw(array, state);
 }
 
-ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map), environment(Collider::Environment){
+ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map), environment(Collider::Environment) {
 	world.SetContactListener(&listener);
 
 	uint16_t j,k;
@@ -239,6 +239,10 @@ void ObjectLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	for(it=objects.begin(); it !=objects.end(); it++){
 		target.draw(**it, state);
 	}
+}
+
+ObjectLayer::~ObjectLayer() {
+	objects.clear();
 }
 
 void ObjectLayer::step(float frame, float time) {
