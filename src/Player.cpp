@@ -121,6 +121,7 @@ void Player::jump() {
 		}
 
 		ObjectLayer* layerO = (ObjectLayer*)map->layers[to];
+		Map* map = this->map; /* avoid use after free as this class is deleted */
 
 		shared_ptr<Player> player = shared_ptr<Player>(new Player(layerO, body->GetPosition(), to));
 
