@@ -10,7 +10,8 @@ $(SPINE_OBJ)%.o: $(SPINE_SRC)%.cpp | $(SPINE_OBJ) $(SPINE_OBJ)json/ $(SPINE_OBJ)
 	@g++ -o $@ -c $< -I $(INC) $(CPPFLAGS) -MD -MT $@ -MP
 
 $(BIN)libspine.a: $(SPINE_OBJS)
-	ar cr $@ $^
+	@echo Creating $@
+	@ar cr $@ $^
 
 -include $(SPINE_OBJ)json/*.d
 -include $(SPINE_OBJ)spine/*.d
