@@ -64,6 +64,7 @@ private:
 
 	friend class TileLayer;
 	friend class DecorationLayer;
+	friend class Player;
 };
 
 #endif /* MAP_H_ */

@@ -10,7 +10,7 @@
 Player::~Player() {
 }
 
-Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(location){
+Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(location), Collider(Collider::Player), inPortal(false), portalDirection(Portal::Up){
 	this->map = layer->map;
 
 	b2BodyDef bodyDef;
@@ -20,6 +20,7 @@ Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(l
 	bodyDef.fixedRotation = true;
 
 	body = layer->world.CreateBody(&bodyDef);
+	body->SetUserData((Collider*)this);
 
 	b2PolygonShape dynamicBox;
 	dynamicBox.SetAsBox(0.47f, 0.75f, b2Vec2(0.5, 0.75), 0);
@@ -90,11 +91,49 @@ Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(l
 	skeleton->getRootBone()->x = X_OFFSET;
 	skeleton->getRootBone()->y = Y_OFFSET;
 	skeleton->updateWorldTransform();
+
+	sync();
 }
 
 void Player::jump() {
-	setState(PlayerPreJump);
-	jumpStart = time;
+	if(inPortal){
+		int32_t to = layer;
+
+		if(portalDirection == Portal::Up){
+			to++;
+			while(to < map->layers.size()){
+				if(map->layers[to]->type == Layer::Object)
+					break;
+				to++;
+			}
+
+			FAIL_ON(to == map->layers.size(), "No layer found going up");
+
+		} else {
+			to--;
+			while(to > 0 ){
+				if(map->layers[to]->type == Layer::Object)
+					break;
+				to--;
+			}
+
+			FAIL_ON(to < 0, "No layer found going down");
+		}
+
+		ObjectLayer* layerO = (ObjectLayer*)map->layers[to];
+
+		shared_ptr<Player> player = shared_ptr<Player>(new Player(layerO, body->GetPosition(), to));
+
+		((ObjectLayer*)map->layers[layer])->objects.erase(map->player);
+
+		map->player = player;
+
+		layerO->objects.insert(map->player);
+
+	} else {
+		setState(PlayerPreJump);
+		jumpStart = time;
+	}
 }
 
 void Player::startImpulseLeft() {
@@ -169,11 +208,40 @@ void Player::BeginContact(b2Contact* contact) {
 	if(contact->GetFixtureA()->IsSensor() || contact->GetFixtureB()->IsSensor()){
 		grounded++;
 	}
+
+	Collider* collider = (Collider*)contact->GetFixtureA()->GetBody()->GetUserData();
+
+	switch(collider->type){
+	case Collider::Portal:
+	{
+			inPortal = true;
+
+			::Portal* portal = (::Portal*)collider;
+			portalDirection = portal->direction;
+	}
+		break;
+	case Collider::Environment:
+		break;
+	case Collider::Player:
+		break;
+	}
 }
 
 void Player::EndContact(b2Contact* contact) {
 	if(contact->GetFixtureA()->IsSensor() || contact->GetFixtureB()->IsSensor()){
 		grounded--;
+	}
+
+	Collider* collider = (Collider*)contact->GetFixtureA()->GetBody()->GetUserData();
+
+	switch(collider->type){
+	case Collider::Portal:
+		inPortal = false;
+		break;
+	case Collider::Environment:
+		break;
+	case Collider::Player:
+		break;
 	}
 }
 

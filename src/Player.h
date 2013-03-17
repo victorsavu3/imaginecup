@@ -19,9 +19,10 @@ using boost::shared_ptr;
 #include "conversions.h"
 #include "Entity.h"
 #include "Layer.h"
+#include "Portal.h"
 
 
-class Player : public b2ContactListener, public Entity {
+class Player : public b2ContactListener, public Entity, public Collider {
 public:
 	Player(ObjectLayer* layer, b2Vec2 position, uint16_t location);
 	virtual ~Player();
@@ -47,16 +48,17 @@ public:
 	Direction getDirection(){
 		return direction;
 	}
+
+	uint16_t getLayer() const {
+		return layer;
+	}
+
 	const sf::Vector2f& getPosition() const {
 		return position;
 	}
 
 	void setPosition(const sf::Vector2f& position) {
 		this->position = position;
-	}
-
-	uint16_t getLayer() const {
-		return layer;
 	}
 
 private:
@@ -93,12 +95,16 @@ private:
 	void setDirection(Direction direction);
 
 	uint32_t grounded;
-	sf::Vector2f position;
 
 	shared_ptr<spine::Atlas> atlas;
 	shared_ptr<spine::Skeleton> skeleton;
 	shared_ptr<spine::SkeletonData> skeletonData;
 	shared_ptr<spine::Animation> run;
+
+	bool inPortal;
+	Portal::Direction portalDirection;
+
+	sf::Vector2f position;
 };
 
 #endif /* PLAYER_H_ */

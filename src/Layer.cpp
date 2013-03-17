@@ -142,7 +142,7 @@ void ImageLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 	target.draw(array, state);
 }
 
-ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map){
+ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map), environment(Collider::Environment){
 	world.SetContactListener(&listener);
 
 	uint16_t j,k;
@@ -157,7 +157,8 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 				b2BodyDef groundBodyDef;
 				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
 
-				b2Body* groundBody = world.CreateBody(&groundBodyDef);
+				b2Body* body = world.CreateBody(&groundBodyDef);
+				body->SetUserData(&environment);
 
 				b2PolygonShape groundBox;
 				b2Vec2 points[object->GetPolygon()->GetNumPoints()];
@@ -166,12 +167,13 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 				}
 				groundBox.Set(points, object->GetPolygon()->GetNumPoints());
 
-				groundBody->CreateFixture(&groundBox, 0);
+				body->CreateFixture(&groundBox, 0);
 			} else if(object->GetPolyline() != NULL){
 				b2BodyDef groundBodyDef;
 				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
 
-				b2Body* groundBody = world.CreateBody(&groundBodyDef);
+				b2Body* body = world.CreateBody(&groundBodyDef);
+				body->SetUserData(&environment);
 
 				b2ChainShape chain;
 				b2Vec2 points[object->GetPolyline()->GetNumPoints()];
@@ -180,12 +182,13 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 				}
 				chain.CreateChain(points, object->GetPolyline()->GetNumPoints());
 
-				groundBody->CreateFixture(&chain, 0);
+				body->CreateFixture(&chain, 0);
 			} else {
 				b2BodyDef groundBodyDef;
 				groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
 
 				b2Body* body = world.CreateBody(&groundBodyDef);
+				body->SetUserData(&environment);
 
 				b2PolygonShape dynamicBox;
 				dynamicBox.SetAsBox(convert(sf::Vector2f(object->GetWidth(), object->GetHeight()), map).x / 2,
@@ -194,7 +197,35 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 
 				body->CreateFixture(&dynamicBox, 0);
 			}
+		} else if(object->GetType() == "Portal"){
+			FAIL_ON(!object->GetProperties().HasProperty("Direction"), "A Portal must have a Direction");
 
+			if(object->GetProperties().GetLiteralProperty("Direction") == "Up")
+				portals.push_back(Portal(Portal::Up));
+			else if(object->GetProperties().GetLiteralProperty("Direction") == "Down")
+				portals.push_back(Portal(Portal::Down));
+			else
+				FAIL("Direction must be Up or Down");
+
+
+			b2BodyDef groundBodyDef;
+			groundBodyDef.position = convert(sf::Vector2f(object->GetX(), object->GetY()), map);
+
+			b2Body* body = world.CreateBody(&groundBodyDef);
+			body->SetUserData(&portals[portals.size() - 1]);
+
+			b2PolygonShape dynamicBox;
+			dynamicBox.SetAsBox(convert(sf::Vector2f(object->GetWidth(), object->GetHeight()), map).x / 2,
+					convert(sf::Vector2f(object->GetWidth(), object->GetHeight()), map). y / 2,
+					convert(sf::Vector2f(object->GetWidth() / 2, object->GetHeight() / 2), map), 0);
+
+			b2FixtureDef fixtureDef;
+			fixtureDef.shape = &dynamicBox;
+			fixtureDef.density = 0;
+			fixtureDef.friction = 0;
+			fixtureDef.isSensor = true;
+
+			body->CreateFixture(&fixtureDef);
 		} else if(object->GetType() == "Player"){
 			FAIL_ON(map->player, "There can only be one player instance")
 			map->player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), map), layer->GetZOrder()));
