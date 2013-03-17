@@ -14,8 +14,6 @@ class ObjectLayer;
 
 using boost::shared_ptr;
 
-#include <SFML/Graphics.hpp>
-
 #include <set>
 #include <vector>
 
