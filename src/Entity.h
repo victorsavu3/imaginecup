@@ -5,7 +5,7 @@
 
 #include "Updatable.h"
 
-class Entity : public Updatable, public sf::Drawable{
+class Entity : public Updatable, virtual public sf::Drawable{
 public:
 	virtual ~Entity() {}
 };

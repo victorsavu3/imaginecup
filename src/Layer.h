@@ -24,6 +24,7 @@ using boost::shared_ptr;
 #include "ContactListener.h"
 #include "Collider.h"
 #include "Portal.h"
+#include "DebugDraw.h"
 
 class Layer : public sf::Drawable, public Updatable{
 public:
@@ -82,6 +83,9 @@ public:
 	b2World world;
 	Map* map;
 private:
+
+	shared_ptr<DebugDraw> debug;
+
 	std::set<shared_ptr<Entity> > objects;
 	ContactListener listener;
 
@@ -90,6 +94,7 @@ private:
 	std::vector<Portal> portals;
 
 	friend class Player;
+	friend class PickUp;
 };
 
 class DecorationLayer : public Layer{

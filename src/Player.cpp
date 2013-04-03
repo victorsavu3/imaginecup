@@ -4,7 +4,9 @@
 
 #include "error.h"
 
-#define Y_OFFSET 320
+#include "PickUp.h"
+
+#define Y_OFFSET 400
 #define X_OFFSET 80
 
 Player::~Player() {
@@ -213,6 +215,8 @@ void Player::BeginContact(b2Contact* contact) {
 	}
 
 	Collider* collider = (Collider*)contact->GetFixtureA()->GetBody()->GetUserData();
+	if(collider->type == Collider::Player)
+		collider = (Collider*)contact->GetFixtureB()->GetBody()->GetUserData();
 
 	switch(collider->type){
 	case Collider::Portal:
@@ -225,7 +229,8 @@ void Player::BeginContact(b2Contact* contact) {
 		break;
 	case Collider::Environment:
 		break;
-	case Collider::Player:
+	case Collider::PickUp:
+		((::PickUp*)collider)->markDeleted();
 		break;
 	}
 }
@@ -344,7 +349,7 @@ void Player::setImpulse(Impulse impulse) {
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates renderStates) const {
 	renderStates.transform.translate(position);
-	renderStates.transform.scale(0.2, 0.2);
+	renderStates.transform.scale(0.8, 0.8);
 	target.draw(*skeleton, renderStates);
 }
 

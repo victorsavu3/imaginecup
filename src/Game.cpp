@@ -2,7 +2,7 @@
 
 #include "Map.h"
 
-Game::Game() : map("assets/test.tmx"), camera(0,0){
+Game::Game() : map("assets/untitled.tmx"), camera(0,0){
 
 	//window.create(sf::VideoMode(1920, 1080), "Imaginecup", sf::Style::Fullscreen);
 	window.create(sf::VideoMode(800, 600), "Imaginecup");
@@ -75,11 +75,11 @@ sf::Vector2f Game::getIdealCamera() {
 	sf::Vector2f ret = map.player->getPosition();
 
 	if(map.player->getDirection() == Player::Right){
-		ret.x = ret.x - getWidth() / 5;
-		ret.y = ret.y - 4 * getHeigth() / 5;
+		ret.x = ret.x - getWidth() / 10;
+		ret.y = ret.y - 4 * getHeigth() / 5 + 256;
 	} else {
-		ret.x = ret.x - 4 * getWidth() / 5;
-		ret.y = ret.y - 4 * getHeigth() / 5;
+		ret.x = ret.x - 9 * getWidth() / 10 + 128;
+		ret.y = ret.y - 4 * getHeigth() / 5 + 256;
 	}
 
 	if(ret.x < 0)

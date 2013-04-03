@@ -3,6 +3,8 @@
 #include "conversions.h"
 #include "error.h"
 
+#include "PickUp.h"
+
 TileLayer::TileLayer(Map* map, const Tmx::Layer* layer) : Layer(Layer::Tile){
 	this->map = map;
 
@@ -143,7 +145,10 @@ void ImageLayer::draw(sf::RenderTarget& target, sf::RenderStates state) const {
 }
 
 ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map* tmx) : Layer(Layer::Object), world(b2Vec2(0, 50)), map(map), environment(Collider::Environment) {
+	debug.reset(new DebugDraw());
+
 	world.SetContactListener(&listener);
+	world.SetDebugDraw(&*debug);
 
 	uint16_t j,k;
 
@@ -178,6 +183,8 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 				b2ChainShape chain;
 				b2Vec2 points[object->GetPolyline()->GetNumPoints()];
 				for(k=0;k<object->GetPolyline()->GetNumPoints();k++){
+					FAIL_ON(object->GetPolyline()->GetPoint(k).x < 0, "Coordinates must be positive");
+					FAIL_ON(object->GetPolyline()->GetPoint(k).y < 0, "Coordinates must be positive");
 					points[k] = convert(object->GetPolyline()->GetPoint(k), map);
 				}
 				chain.CreateChain(points, object->GetPolyline()->GetNumPoints());
@@ -230,6 +237,10 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 			FAIL_ON(map->player, "There can only be one player instance")
 			map->player.reset(new Player(this, convert(sf::Vector2f(object->GetX(), object->GetY()), map), layer->GetZOrder()));
 			objects.insert(map->player);
+		} else if(object->GetType() == "Coin") {
+			objects.insert(shared_ptr<Entity>(new PickUp(this, PickUp::Coin, "coin", sf::Vector2f(object->GetX(), object->GetY()))));
+		} else  {
+			FAIL("Object type unrecognized");
 		}
 	}
 }
@@ -251,6 +262,10 @@ void ObjectLayer::step(float frame, float time) {
 	for(it=objects.begin(); it !=objects.end(); it++){
 		(*it)->step(frame, time);
 	}
+
+	/*debug->clear();
+	world.DrawDebugData();
+	debug->display();*/
 }
 
 DecorationLayer::DecorationLayer(Map* map, const Tmx::ObjectGroup* layer,

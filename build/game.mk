@@ -1,4 +1,4 @@
-SRCS := main.cpp Game.cpp Layer.cpp Map.cpp Player.cpp conversions.cpp DebugDraw.cpp ContactListener.cpp
+SRCS := main.cpp Game.cpp Layer.cpp Map.cpp Player.cpp conversions.cpp DebugDraw.cpp ContactListener.cpp PickUp.cpp
 OBJS := $(addprefix $(OBJ), $(addsuffix .o, $(basename $(SRCS))))
 
 all: $(BIN)game

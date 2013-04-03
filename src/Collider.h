@@ -6,10 +6,12 @@ public:
 	typedef enum {
 		Player,
 		Portal,
-		Environment
+		Environment,
+		PickUp
 	} Type;
 
 	Collider(Type type) : type(type) {}
+	virtual ~Collider() {}
 
 	Type type;
 };
