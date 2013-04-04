@@ -166,7 +166,7 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 				body->SetUserData(&environment);
 
 				b2PolygonShape groundBox;
-				b2Vec2 points[object->GetPolygon()->GetNumPoints()];
+				b2Vec2* points = (b2Vec2*)alloca(object->GetPolygon()->GetNumPoints());
 				for(k=0;k<object->GetPolygon()->GetNumPoints();k++){
 					points[k] = convert(object->GetPolygon()->GetPoint(k), map);
 				}
@@ -181,7 +181,7 @@ ObjectLayer::ObjectLayer(Map* map, const Tmx::ObjectGroup* layer, const Tmx::Map
 				body->SetUserData(&environment);
 
 				b2ChainShape chain;
-				b2Vec2 points[object->GetPolyline()->GetNumPoints()];
+				b2Vec2* points = (b2Vec2*)alloca(object->GetPolyline()->GetNumPoints());
 				for(k=0;k<object->GetPolyline()->GetNumPoints();k++){
 					FAIL_ON(object->GetPolyline()->GetPoint(k).x < 0, "Coordinates must be positive");
 					FAIL_ON(object->GetPolyline()->GetPoint(k).y < 0, "Coordinates must be positive");
