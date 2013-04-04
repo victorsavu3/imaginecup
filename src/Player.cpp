@@ -7,13 +7,15 @@
 #include "PickUp.h"
 
 #define Y_OFFSET 400
-#define X_OFFSET 80
+#define X_OFFSET 0
 
 Player::~Player() {
 	((ObjectLayer*)map->layers[layer])->world.DestroyBody(body);
 }
 
 Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(location), Collider(Collider::Player), inPortal(false), portalDirection(Portal::Up){
+	chdir("assets/player");
+
 	this->map = layer->map;
 
 	b2BodyDef bodyDef;
@@ -75,15 +77,15 @@ Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(l
 	jumpStart = 0;
 	grounded = 0;
 
-	std::ifstream atlasFile("assets/spineboy.atlas");
+	std::ifstream atlasFile("pack.atlas");
 	atlas.reset(new spine::Atlas(atlasFile));
 
 	spine::SkeletonJson skeletonJson(atlas.get());
 
-	std::ifstream skeletonFile("assets/spineboy-skeleton.json");
+	std::ifstream skeletonFile("skeleton.json");
 	skeletonData.reset(skeletonJson.readSkeletonData(skeletonFile));
 
-	std::ifstream animationFile("assets/spineboy-walk.json");
+	std::ifstream animationFile("skeleton-run3.json");
 	run.reset(skeletonJson.readAnimation(animationFile, skeletonData.get()));
 
 	skeleton.reset(new spine::Skeleton(skeletonData.get()));
@@ -96,6 +98,8 @@ Player::Player(ObjectLayer* layer, b2Vec2 position, uint16_t location) : layer(l
 	skeleton->updateWorldTransform();
 
 	sync();
+
+	chdir("../..");
 }
 
 void Player::jump() {
@@ -187,6 +191,8 @@ void Player::step(float frame, float time) {
 	applyImpulse(frame);
 
 	run->apply(skeleton.get(), time, true);
+	skeleton->getRootBone()->x = X_OFFSET;
+	skeleton->getRootBone()->y = Y_OFFSET;
 	skeleton->updateWorldTransform();
 
 	b2Vec2 speed = body->GetLinearVelocity();
